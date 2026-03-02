@@ -3,589 +3,456 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThuisZorg Ecosysteem AI - g-AMIE Nurseline MVP</title>
+    <title>VitaFlow - Master Environment (Connected)</title>
     <style>
+        /* --- GLOBAL VARIABLES & RESET --- */
         :root {
-            --primary: #2563eb;
-            --primary-light: #dbeafe;
-            --secondary: #10b981;
-            --secondary-light: #d1fae5;
-            --dark: #1f2937;
-            --light: #f3f4f6;
-            --white: #ffffff;
-            --danger: #ef4444;
-            --danger-light: #fee2e2;
-        }
-
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --primary: #2B5B61;      /* VitaFlow Groen/Blauw */
+            --primary-light: #E3ECEB;
+            --accent: #D97757;       /* Warm Terracotta */
+            --nurse-bg: #1A365D;     /* Donkerblauw voor klinisch dashboard */
+            --success: #38A169;
+            --warning: #DD6B20;
+            --alert: #E53E3E;
+            --bg-body: #D5DADD;
+            --text-dark: #2D3748;
+            --text-muted: #718096;
         }
 
         body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
             margin: 0;
-            background-color: var(--light);
-            color: var(--dark);
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-dark);
         }
 
-        /* Navigatie Balk */
-        header {
-            background-color: var(--white);
-            padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        /* --- TOP NAVIGATION BAR --- */
+        .top-nav {
+            background-color: #111;
+            color: white;
+            padding: 15px 30px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 100;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary);
+        .top-nav h2 { margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
         }
 
-        .tabs button {
-            background: none;
-            border: none;
-            padding: 0.75rem 1.5rem;
+        .nav-btn {
+            background: #333;
+            border: 2px solid #555;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            color: #6b7280;
+            transition: 0.2s;
         }
 
-        .tabs button.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
+        .nav-btn:hover { background: #444; }
+        .nav-btn.active { background: var(--primary); border-color: var(--primary-light); }
 
-        /* Layout Containers */
-        .container {
-            display: none;
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            gap: 2rem;
-        }
-
-        .container.active {
-            display: flex;
-        }
-
-        .card {
-            background: var(--white);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        /* --- VIEW CONTAINER --- */
+        .view-container {
             flex: 1;
-        }
-
-        h2 {
-            margin-top: 0;
-            color: var(--dark);
-            border-bottom: 2px solid var(--light);
-            padding-bottom: 0.5rem;
-        }
-
-        /* --- PATIENTEN APP STYLES --- */
-        .chat-container {
-            display: flex;
-            flex-direction: column;
-            height: 550px;
-        }
-
-        .chat-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            background: #f9fafb;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .bubble {
-            max-width: 80%;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            line-height: 1.4;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bubble.ai {
-            background-color: var(--primary-light);
-            color: #1e3a8a;
-            align-self: flex-start;
-            border-bottom-left-radius: 0;
-        }
-
-        .bubble.user {
-            background-color: var(--white);
-            border: 1px solid #e5e7eb;
-            align-self: flex-end;
-            margin-left: auto;
-            border-bottom-right-radius: 0;
-        }
-
-        .bubble img {
-            max-width: 100%;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .icon-btn {
-            background-color: #e5e7eb;
-            border: none;
-            font-size: 1.2rem;
-            padding: 0.75rem;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background 0.2s;
+            position: relative;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
-        .icon-btn:hover {
-            background-color: #d1d5db;
-        }
 
-        .chat-input input[type="text"] {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .chat-input button.send-btn {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .task-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .task-item {
-            background: var(--light);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            display: flex;
+        .view {
+            display: none; /* Verborgen per default */
+            width: 100%;
+            height: 100%;
+            justify-content: center;
             align-items: center;
-            gap: 1rem;
-            border-left: 4px solid var(--secondary);
-            transition: all 0.3s ease;
+            animation: fadeIn 0.4s ease-out;
         }
 
-        .task-item.urgent {
-            border-left-color: var(--danger);
-            background-color: #fef2f2;
-        }
+        .view.active { display: flex; }
 
-        /* --- ZORGVERLENER DASHBOARD STYLES --- */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            background-color: var(--secondary-light);
-            color: #065f46;
-        }
-        
-        .badge.warning {
-            background-color: var(--danger-light);
-            color: #991b1b;
-        }
-
-        .soap-section {
-            margin-bottom: 1.5rem;
-        }
-
-        .soap-section h3 {
-            color: var(--primary);
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            border-bottom: 1px solid var(--primary-light);
-            padding-bottom: 0.25rem;
-        }
-
-        .action-button {
-            background-color: var(--dark);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .action-button.add {
-            background-color: var(--primary);
-        }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-            padding: 0 0.5rem;
-        }
-
-        .delete-btn:hover {
-            color: #b91c1c;
-        }
-
-        .editable-list-item {
+        /* =========================================================================
+           VIEW 1: PATIENT APP (Tablet lay-out, 2 kolommen)
+           ========================================================================= */
+        .patient-app {
+            width: 1024px;
+            height: 768px;
+            background: #FDFBF7;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 8px solid #fff;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            background: #f8fafc;
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid var(--dark);
+            overflow: hidden;
         }
 
-        .transcript-box {
-            height: 150px;
-            overflow-y: auto;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 0.75rem;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            color: #4b5563;
+        .p-left { flex: 1.3; display: flex; flex-direction: column; border-right: 2px solid #E5E5E5; background: white; }
+        .p-right { flex: 1; background: #EFEFE9; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .p-header { padding: 25px 30px; background: var(--primary); color: white; }
+        .p-header h1 { margin: 0; font-size: 1.5rem; }
+        
+        .chat-box { flex: 1; padding: 30px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .bubble { max-width: 80%; padding: 15px 20px; border-radius: 18px; font-size: 1.05rem; line-height: 1.4; }
+        .bubble.ai { background: var(--primary-light); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .bubble.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .bubble.nurse { background: #C6F6D5; border: 2px solid var(--success); align-self: flex-start; border-bottom-left-radius: 4px; }
+
+        .input-bar { padding: 20px; background: white; border-top: 1px solid #E5E5E5; display: flex; gap: 10px; }
+        .input-bar input { flex: 1; padding: 15px; border-radius: 30px; border: 1px solid #CCC; outline: none; font-size: 1rem;}
+        
+        .task-card { background: white; border-radius: 16px; padding: 20px; margin: 15px 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--primary); }
+        .task-card h3 { margin: 0 0 5px 0; }
+
+        /* =========================================================================
+           VIEW 2: FAMILIE COCKPIT (Mantelzorger Smartphone lay-out)
+           ========================================================================= */
+        .family-app {
+            width: 390px;
+            height: 800px;
+            background: #F4F7F6;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            border: 10px solid #222;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
         }
 
-        .hidden {
-            display: none !important;
+        .f-header { background: var(--primary); color: white; padding: 40px 20px 20px 20px; position: relative; }
+        .tier-badge { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; color: #F6E05E; font-weight: bold; }
+        
+        .f-content { padding: 20px; overflow-y: auto; flex: 1; }
+        .stoplight { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .stoplight.green { border-left-color: var(--success); }
+        .stoplight.orange { border-left-color: var(--warning); }
+        
+        .nurse-alert-card { background: #EBF8FF; border: 1px solid #BEE3F8; border-radius: 12px; padding: 15px; margin-top: 10px; }
+
+        /* =========================================================================
+           VIEW 3: NURSELINE DASHBOARD (Klinische Desktop lay-out)
+           ========================================================================= */
+        .nurse-dashboard {
+            width: 100%;
+            height: 100%;
+            background: #F4F7F6;
+            display: flex;
         }
+
+        .n-sidebar { width: 300px; background: var(--nurse-bg); color: white; display: flex; flex-direction: column; }
+        .n-main { flex: 1; display: flex; flex-direction: column; }
+        
+        .queue-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+        .queue-item.active { background: white; color: var(--text-dark); border-left: 5px solid var(--warning); }
+        
+        .n-top { background: white; padding: 15px 25px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; }
+        .n-grid { display: grid; grid-template-columns: 1fr 1.2fr 1fr; flex: 1; overflow: hidden; }
+        .n-col { padding: 20px; border-right: 1px solid #E2E8F0; overflow-y: auto; }
+        .n-col:last-child { background: white; }
+
+        .soap-box { margin-bottom: 15px; }
+        .soap-box label { font-weight: bold; font-size: 0.85rem; color: var(--primary); display: block; margin-bottom: 5px; }
+        .soap-box textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #CCC; resize: vertical; font-family: inherit; line-height: 1.4; box-sizing: border-box;}
+
+        .btn-action { width: 100%; padding: 15px; background: var(--success); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        .btn-action:hover { background: #2F855A; }
+
     </style>
 </head>
 <body>
 
-    <!-- Header & Navigatie -->
-    <header>
-        <div class="logo">ThuisZorg AI Ecosysteem</div>
-        <div class="tabs">
-            <button class="active" onclick="switchTab('patient')">Patiënt App (Coach)</button>
-            <button onclick="switchTab('professional')">Nurseline Cockpit (Validatie) <span id="notification-dot" style="display:none; color:red;">🔴</span></button>
-        </div>
-    </header>
-
-    <!-- PATIËNTEN WEERGAVE -->
-    <div id="patient" class="container active">
-        <!-- Linker kolom: Chat -->
-        <div class="card" style="flex: 2;">
-            <h2>Gesprek met je Gezondheidscoach</h2>
-            <div class="chat-container">
-                <div class="chat-history" id="chat-history">
-                    <div class="bubble ai">
-                        <strong>Coach:</strong> Goedemorgen Jan! Fijn dat je weer thuis bent na je ziekenhuisopname. Hoe gaat het vandaag met de operatiewond op je been?
-                    </div>
-                </div>
-                <div class="chat-input">
-                    <!-- Oplaad knop (multimodale input) -->
-                    <button class="icon-btn" onclick="triggerUpload()" title="Upload een foto of document">📎</button>
-                    <input type="text" id="user-input" placeholder="Typ hier je antwoord..." onkeypress="handleKeyPress(event)">
-                    <button class="send-btn" onclick="sendMessage()">Stuur</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Rechter kolom: Zorgbundels -->
-        <div class="card" style="flex: 1;">
-            <h2>Mijn Doelen voor Vandaag</h2>
-            <ul class="task-list" id="patient-task-list">
-                <li class="task-item">
-                    <input type="checkbox" style="transform: scale(1.5); cursor: pointer;">
-                    <div>
-                        <strong>Medicatie (Ochtend)</strong><br>
-                        <small>Neem 1x Lisinopril bij het ontbijt.</small>
-                    </div>
-                </li>
-            </ul>
+    <!-- TOP NAVIGATION -->
+    <div class="top-nav">
+        <h2><span style="font-size: 1.5rem;">🌿</span> VitaFlow Master Omgeving</h2>
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="switchView('view-patient', this)">1. Patiënten App (André)</button>
+            <button class="nav-btn" onclick="switchView('view-family', this)">2. Familiecockpit (Lisa)</button>
+            <button class="nav-btn" onclick="switchView('view-nurse', this)">3. Nurseline (Vpk. Karin)</button>
         </div>
     </div>
 
-    <!-- ZORGVERLENER WEERGAVE (De Clinician Cockpit met g-AMIE overzicht) -->
-    <div id="professional" class="container" style="flex-direction: column;">
-        
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2>Patiëntendossier: Jan Peeters (72)</h2>
-                <div id="badges-container">
-                    <span class="badge">Ontslag: Gisteren</span>
-                    <span class="badge warning hidden" id="wound-badge">Risico: Mogelijke wondinfectie</span>
-                </div>
-            </div>
-            
-            <div class="grid-2">
-                <!-- S & O van SOAP -->
-                <div>
-                    <div class="soap-section">
-                        <h3>S (Subjectief) & Voorgeschiedenis</h3>
-                        <p style="margin:0; font-size: 0.9rem;"><strong>Ontslagbrief:</strong> Hartfalen, recente heupoperatie. Hypertensie in VG.<br>
-                        <strong>Patiënt meldt:</strong> Verminderde mobiliteit na operatie. <span id="subjective-update" class="hidden" style="color: var(--danger); font-weight: bold;">Meldt roodheid en warmte bij incisie.</span></p>
+    <div class="view-container">
+
+        <!-- =========================================================================
+             VIEW 1: PATIËNT APP (André Moons, 81j)
+             ========================================================================= -->
+        <div id="view-patient" class="view active">
+            <div class="patient-app">
+                <!-- Links: De AI Gids -->
+                <div class="p-left">
+                    <div class="p-header">
+                        <h1>Hallo André,</h1>
+                        <p>Jouw AI-gids en medisch team staan voor je klaar.</p>
                     </div>
-                    <div class="soap-section">
-                        <h3>O (Objectief) & Metingen</h3>
-                        <p style="margin:0; font-size: 0.9rem;">Gewicht: 82.5 kg | Bloeddruk: 135/85 mmHg</p>
-                        <div id="image-assessment" class="hidden" style="margin-top: 10px; padding: 10px; background: #fee2e2; border-radius: 6px; font-size: 0.9rem;">
-                            <strong>📸 Multimodale Input:</strong> Patiënt heeft foto geüpload. AI analyse toont erytheem (roodheid) rondom incisie. Verdacht voor beginnende infectie.
+                    <div class="chat-box" id="patient-chat">
+                        <div class="bubble ai">Goedemorgen André. Ik zie in je ontslagbrief dat je bent gestart met een antibioticakuur (Bactrim) voor je blaasontsteking. Lukt het om deze in te nemen?</div>
+                        
+                        <!-- Simulatie van de multimodale upload door dochter Lisa namens André -->
+                        <div class="bubble user">
+                            <em>📎 Labo_Uitslag_Huisarts.pdf geüpload</em><br><br>
+                            Mijn dochter Lisa heeft gisteren bloed laten prikken bij de huisarts. Er staat iets over mijn nieren (eGFR 31). Wat betekent dit in combinatie met mijn medicatie?
                         </div>
+
+                        <!-- Wayfinding AI stelt oordeel uit en roept de Nurseline in -->
+                        <div class="bubble ai">
+                            Dank je wel voor het delen van het rapport, André. Een eGFR van 31 betekent dat je nieren momenteel wat trager filteren. <br><br>
+                            Omdat nieren belangrijk zijn voor het verwerken van je antibiotica (Bactrim), stuur ik dit dossier nu direct door naar <strong>Verpleegkundige Karin</strong> van de Nurseline om de dosering met je arts te dubbelchecken. Zij neemt zo contact met je op!
+                        </div>
+                        <!-- Hier komt straks het bericht van de verpleegkundige bij! -->
+                    </div>
+                    <div class="input-bar">
+                        <div style="font-size: 1.5rem; padding: 10px; cursor:pointer; color: var(--text-muted);">📎</div>
+                        <input type="text" placeholder="Typ je bericht..." disabled>
+                        <div style="background: var(--accent); color: white; padding: 15px 20px; border-radius: 30px; cursor:pointer;">➤</div>
                     </div>
                 </div>
 
-                <!-- Het Ruwe Chat Transcript voor de Nurseline -->
-                <div>
-                    <div class="soap-section">
-                        <h3>Volledig Chat Transcript (Context)</h3>
-                        <div class="transcript-box" id="nurseline-transcript">
-                            [AI]: Goedemorgen Jan! Fijn dat je weer thuis bent na je ziekenhuisopname. Hoe gaat het vandaag met de operatiewond op je been?<br>
-                        </div>
+                <!-- Rechts: Zorgbundels (Health Literacy) -->
+                <div class="p-right">
+                    <div style="padding: 25px 30px 10px 30px;">
+                        <h2 style="margin: 0; color: var(--primary);">Mijn Zorgbundels</h2>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 5px;">Samengesteld uit ontslagbrief ZAS Middelheim</p>
+                    </div>
+
+                    <div class="task-card">
+                        <h3>💊 Medicatie (Blaasontsteking)</h3>
+                        <p style="font-size: 0.9rem; margin-bottom: 10px;">Bactrim Forte (800/160mg). 2x per dag innemen met veel water.</p>
+                        <div style="background: #EBF8FF; color: #2B6CB0; display: inline-block; padding: 5px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">⚠️ Wordt momenteel herzien door Nurseline</div>
+                    </div>
+
+                    <div class="task-card" style="border-left-color: var(--success);">
+                        <h3>🚶 Valpreventie</h3>
+                        <p style="font-size: 0.9rem;">Probeer vandaag 10 minuten te stappen met de rollator in de woonkamer. Lisa helpt je hierbij om 14:00u.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="grid-2" style="gap: 2rem;">
-            <!-- A & P van SOAP (Bewerkbaar Zorgplan) -->
-            <div class="card" style="border: 2px solid var(--primary-light);">
-                <h2>Concept Zorgplan (AI-Gegenereerd)</h2>
-                
-                <div class="soap-section">
-                    <h3>A (Assessment) - Aandachtsgebieden</h3>
-                    <p style="margin:0; font-size: 0.9rem;" id="assessment-text">Klinisch stabiel m.b.t. hartfalen. Valrisico aanwezig wegens heupoperatie.</p>
+        <!-- =========================================================================
+             VIEW 2: FAMILIE COCKPIT (Dochter Lisa)
+             ========================================================================= -->
+        <div id="view-family" class="view">
+            <div class="family-app">
+                <div class="f-header">
+                    <div class="tier-badge">⭐ Tier 3: Peace-of-Mind</div>
+                    <h1 style="margin:0 0 5px 0;">Familiecockpit</h1>
+                    <p style="margin:0;">Zorgnetwerk: <strong>André Moons</strong> (Vader)</p>
                 </div>
-
-                <div class="soap-section">
-                    <h3>P (Plan) - Aanpasbaar door Nurseline</h3>
-                    <p style="font-size: 0.8rem; color: #6b7280; margin-top: 0;">Bewerk de takenlijst voordat je deze accordeert en doorstuurt.</p>
+                
+                <div class="f-content">
+                    <h3 style="margin-top: 0;">Dagelijkse Status</h3>
                     
-                    <ul id="editable-plan-list" style="padding: 0; list-style: none;">
-                        <li class="editable-list-item">
-                            <div>
-                                <strong>Biometrie</strong><br>
-                                <span style="font-size: 0.85rem;">Bloeddrukcontrole na 3 dagen ter evaluatie Lisinopril. (Bron: ESC Heart Failure 2021)</span>
-                            </div>
-                            <button class="delete-btn" onclick="this.parentElement.remove()" title="Verwijder taak">×</button>
-                        </li>
-                        <li class="editable-list-item">
-                            <div>
-                                <strong>Logistiek & Thuisomgeving</strong><br>
-                                <span style="font-size: 0.85rem;">Kinesitherapeut inschakelen via matchingsplatform voor valpreventie.</span>
-                            </div>
-                            <button class="delete-btn" onclick="this.parentElement.remove()" title="Verwijder taak">×</button>
-                        </li>
-                    </ul>
+                    <div class="stoplight green">
+                        <div>
+                            <div style="font-weight: bold;">Valpreventie & Beweging</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Jij (Lisa) gaat om 14:00 wandelen.</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: var(--success);">✓</div>
+                    </div>
 
-                    <!-- Handmatige input box -->
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <input type="text" id="manual-task-input" placeholder="Typ een nieuwe taak om toe te voegen..." style="flex:1; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px;">
-                        <button class="action-button add" onclick="addManualTask()">Toevoegen</button>
+                    <div class="stoplight orange">
+                        <div>
+                            <div style="font-weight: bold;">Medicatie & Nierfunctie</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Lab-uitslag is in behandeling door Nurseline.</div>
+                        </div>
+                        <div style="font-size: 1.5rem; color: var(--warning);">!</div>
+                    </div>
+
+                    <h3 style="margin-top: 25px;">Nurseline Updates (Vpk. Karin)</h3>
+                    
+                    <!-- Dit blok wordt geüpdatet via JavaScript als de verpleegkundige het dossier goedkeurt -->
+                    <div class="nurse-alert-card" id="family-alert-box">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 1.5rem;">👩‍⚕️</span>
+                            <strong style="color: #2B6CB0;">In behandeling...</strong>
+                        </div>
+                        <p style="margin: 0; font-size: 0.85rem; color: #4A5568;">
+                            De AI heeft de bloeduitslag (eGFR 31) en de vraag over Bactrim veilig doorgestuurd. Verpleegkundige Karin kijkt momenteel asynchroon mee in het dossier. Je ontvangt hier zo een update.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- =========================================================================
+             VIEW 3: NURSELINE DASHBOARD (Verpleegkundige Karin)
+             ========================================================================= -->
+        <div id="view-nurse" class="view">
+            <div class="nurse-dashboard">
+                
+                <!-- Links: Team Wachtrij -->
+                <div class="n-sidebar">
+                    <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <h2 style="margin:0;">Nurseline Triage</h2>
+                        <p style="margin: 5px 0 0 0; color: #A0AEC0; font-size: 0.9rem;">Ingelogd: Vpk. Karin</p>
+                    </div>
+                    <div class="queue-item active">
+                        <div style="font-weight: bold;">André Moons (81j)</div>
+                        <div style="font-size: 0.8rem; color: var(--warning); margin-top: 4px;">Uitslag Labo vs. Medicatie (Bactrim)</div>
+                        <div style="margin-top: 8px; background: #EBF8FF; color: #2B6CB0; display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">👤 Jij kijkt mee</div>
+                    </div>
+                    <div class="queue-item">
+                        <div style="font-weight: bold;">Jos Vandevelde (88j)</div>
+                        <div style="font-size: 0.8rem; color: #A0AEC0; margin-top: 4px;">Wearable alert: HR piek</div>
+                        <div style="margin-top: 8px; background: rgba(0,0,0,0.3); display: inline-block; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem;">🔒 Toegewezen aan Jan</div>
                     </div>
                 </div>
 
-                <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 1.5rem 0;">
-                <button class="action-button" style="background-color: var(--secondary); width: 100%; font-size: 1.1rem; padding: 0.75rem;" onclick="approvePlan()">✅ Plan Accorderen & Activeren</button>
-            </div>
-
-            <!-- Matchingsplatform AI Suggesties -->
-            <div class="card">
-                <h2>Matchingsplatform Suggesties</h2>
-                <p style="font-size: 0.9rem; color: #4b5563;">Gekoppelde diensten op basis van het bovenstaande plan:</p>
-                <div id="matching-list">
-                    <div class="task-item" style="border-left-color: var(--primary);">
+                <!-- Rechts: De Cockpit & SOAP -->
+                <div class="n-main">
+                    <div class="n-top">
                         <div>
-                            <strong>Kinesitherapeut (Valpreventie)</strong><br>
-                            <small>Match gevonden: Praktijk 'De Beweging'. Postcode 2000.</small>
+                            <h2 style="margin:0; color: var(--nurse-bg);">André Moons (81j) - Tier 3</h2>
+                            <p style="margin:0; color: var(--text-muted); font-size: 0.9rem;">Ontslagbrief Neurologie/Geriatrie | Gedeeld met Mantelzorger: Dochter Lisa</p>
                         </div>
-                        <button class="action-button" style="margin-top:0; margin-left: auto;">Plan in</button>
+                        <div style="background: #FFF5F5; border: 1px solid var(--alert); color: var(--alert); padding: 8px 15px; border-radius: 8px; font-weight: bold; display: flex; align-items: center;">
+                            ⚠ Actie Vereist: Medicatie Check
+                        </div>
+                    </div>
+
+                    <div class="n-grid">
+                        
+                        <!-- Kolom 1: Transcript -->
+                        <div class="n-col">
+                            <h3>1. Context & AI-Transcript</h3>
+                            <div style="background: #EDF2F7; padding: 12px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid var(--primary); margin-bottom: 15px;">
+                                <strong>Document Geüpload (MedGemma analyse):</strong><br>
+                                📄 Uitslag_Bloedonderzoek.pdf<br>
+                                <em>Gedetecteerde waarde: eGFR 31 ml/min. (Chronische nierinsufficiëntie stadium 3b).</em>
+                            </div>
+                            <div style="background: white; border: 1px solid #CCC; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 10px;">
+                                <strong>Patiënt/Lisa:</strong> Wat betekent deze eGFR 31 in combinatie met mijn medicatie (Bactrim)?
+                            </div>
+                            <div style="background: var(--primary-light); padding: 10px; border-radius: 8px; font-size: 0.85rem;">
+                                <strong>VitaFlow AI:</strong> (Heeft veiligheids-guardrail geactiveerd, empathie getoond, en asynchroon doorgezet naar Nurseline).
+                            </div>
+                        </div>
+
+                        <!-- Kolom 2: SOAP -->
+                        <div class="n-col">
+                            <h3>2. Klinisch Dossier (SOAP)</h3>
+                            <p style="font-size: 0.8rem; margin-top: -5px; color: var(--text-muted);">AI Concept. Pas aan voor validatie.</p>
+                            
+                            <div class="soap-box">
+                                <label>S - Subjectief</label>
+                                <textarea rows="2">Patiënt en dochter (Lisa) uiten bezorgdheid over recent labo-resultaat nierfunctie (eGFR 31).</textarea>
+                            </div>
+                            <div class="soap-box">
+                                <label>O - Objectief</label>
+                                <textarea rows="2">Actueel medicatieschema: Antibiotica Bactrim Forte 800/160mg 2x/dag. Labo toont eGFR 31 ml/min.</textarea>
+                            </div>
+                            <div class="soap-box">
+                                <label>A - Analyse</label>
+                                <textarea rows="3" style="border-color: var(--alert); background: #FFF5F5;">Gevaar voor overdosering Bactrim bij bekende chronische nierinsufficiëntie stadium 3b (eGFR 31). Dosis is momenteel te hoog voor deze klaartingswaarde. Risico op hyperkaliëmie.</textarea>
+                            </div>
+                            <div class="soap-box">
+                                <label>P - Plan</label>
+                                <textarea rows="3">1. Dosis Bactrim preventief halveren (1x/dag) na overleg huisarts.&#10;2. Familie geruststellen via app.&#10;3. Vochtinname (500ml extra) bewaken.</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Kolom 3: Actie -->
+                        <div class="n-col">
+                            <h3>3. Asynchrone Actie (Health Literacy)</h3>
+                            <div class="soap-box">
+                                <label style="color: var(--success);">Conceptbericht voor Patiënt & Familie (Tier 3):</label>
+                                <textarea id="nurse-message-input" rows="8" style="border: 2px solid var(--success); font-size: 0.95rem;">Dag André en Lisa, ik heb samen met de AI jullie bloedwaarden direct bekeken. Heel goed dat jullie dit hebben doorgestuurd! 
+
+Een eGFR van 31 betekent dat de nieren de medicatie iets trager verwerken. Omdat André nu de antibioticakuur (Bactrim) neemt, is 2 pillen per dag eigenlijk te veel voor zijn nieren. Ik heb de huisarts zojuist gebeld: jullie mogen de dosis vanaf vandaag verlagen naar 1 pil per dag. 
+
+Maak jullie geen zorgen, we houden het samen in de gaten!</textarea>
+                            </div>
+
+                            <!-- DE MAGISCHE KNOP -->
+                            <button class="btn-action" id="btn-approve" onclick="approveNoteAndSync()">
+                                ✓ Goedkeuren & Synchroniseer met App/Familie
+                            </button>
+
+                            <button class="btn-action" style="background: white; color: var(--nurse-bg); border: 2px solid var(--nurse-bg); margin-top: 10px;" onclick="alert('Start Videobelconsult met André en Lisa in de App.')">
+                                📹 Start Videobellen
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Interactiviteit Script -->
+    <!-- JAVASCRIPT VOOR INTERACTIVITEIT -->
     <script>
-        let conversationStep = 0;
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.container').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        // Functie om te wisselen tussen de 3 views via de Top Navigatie
+        function switchView(viewId, btnElement) {
+            // Verberg alle views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
             
-            if(tabId === 'professional') {
-                document.getElementById('notification-dot').style.display = 'none';
-            }
+            // Verwijder active class van alle knoppen
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Toon de geselecteerde view en maak knop actief
+            document.getElementById(viewId).classList.add('active');
+            btnElement.classList.add('active');
         }
 
-        // --- CHAT LOGICA ---
-        function sendMessage() {
-            const inputField = document.getElementById('user-input');
-            const userText = inputField.value;
-            if(userText.trim() === '') return;
+        // Functie om asynchrone oversight actie te demonstreren
+        function approveNoteAndSync() {
+            // 1. Haal de tekst van de verpleegkundige op
+            const nurseMsg = document.getElementById('nurse-message-input').value.replace(/\n/g, '<br>');
 
-            // Voeg toe aan patiënten chat
-            addBubble('user', `<strong>Jij:</strong> ${userText}`);
-            // Voeg toe aan nurseline transcript
-            updateTranscript(`[Patiënt]: ${userText}`);
-            
-            inputField.value = '';
+            // 2. Update de Patiënten App (Voeg verpleegkundige bubbel toe)
+            const patientChat = document.getElementById('patient-chat');
+            const newBubble = document.createElement('div');
+            newBubble.className = 'bubble nurse';
+            newBubble.innerHTML = `<strong>👩‍⚕️ Verpleegkundige Karin (Nurseline):</strong><br><br>${nurseMsg}`;
+            patientChat.appendChild(newBubble);
 
-            // AI Logica op basis van stappen
+            // 3. Update de Familiecockpit (Pas de alert card aan)
+            const familyAlert = document.getElementById('family-alert-box');
+            familyAlert.style.backgroundColor = '#F0FFF4'; // Groenige veilige achtergrond
+            familyAlert.style.borderColor = '#9AE6B4';
+            familyAlert.innerHTML = `
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px;">
+                    <span style="font-size: 1.5rem;">👩‍⚕️</span>
+                    <strong style="color: #276749;">Update van Verpleegkundige Karin</strong>
+                </div>
+                <p style="margin: 0; font-size: 0.85rem; color: #276749;">
+                    "Dag André en Lisa, ik heb samen met de AI jullie bloedwaarden direct bekeken... Ik heb de huisarts zojuist gebeld: jullie mogen de dosis vanaf vandaag verlagen naar 1 pil per dag."
+                </p>
+            `;
+
+            // 4. Update de knop in het dashboard ter bevestiging
+            const btn = document.getElementById('btn-approve');
+            btn.innerHTML = "✅ Dossier Opgeslagen & Gesynchroniseerd";
+            btn.style.backgroundColor = "#2F855A";
+            btn.disabled = true;
+
+            // 5. Automatisch de weergave naar de Familiecockpit sturen voor het wow-effect (na kleine vertraging)
             setTimeout(() => {
-                let aiText = "";
-                if (conversationStep === 0) {
-                    aiText = `Vervelend om te horen dat het rood en warm is. Om de situatie beter in te schatten: <strong>zou je via het paperclip-icoontje (📎) een duidelijke foto van de wond kunnen uploaden?</strong>`;
-                    conversationStep = 1;
-                } else {
-                    aiText = `Bedankt voor de update. Ik houd het in de gaten.`;
-                }
-                addBubble('ai', `<strong>Coach:</strong> ${aiText}`);
-                updateTranscript(`[AI]: ${aiText}`);
-            }, 1200);
-        }
-
-        function triggerUpload() {
-            if (conversationStep !== 1) {
-                alert("Er is momenteel geen medische reden om een document of foto te uploaden.");
-                return;
-            }
-
-            // Simuleer foto upload
-            const photoHtml = `<strong>Jij hebt een foto geüpload:</strong><br><img src="https://images.unsplash.com/photo-1584820927498-cafe2c189f78?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" alt="Wond Foto" style="opacity: 0.8; height: 100px; object-fit: cover;">`;
-            addBubble('user', photoHtml);
-            updateTranscript(`[Patiënt]: *Heeft een foto geüpload*`);
-            
-            // AI analyseert
-            setTimeout(() => {
-                const aiResponse = `Bedankt voor de foto. Ik heb het geanalyseerd. De randen zijn wat rood. Ik heb je zorgplan veilig geüpdatet en direct verpleegkundige Fatima via de Nurseline ingeschakeld. Zij kijkt vandaag nog mee.`;
-                addBubble('ai', `<strong>Coach:</strong> ${aiResponse}`);
-                updateTranscript(`[AI]: ${aiResponse}`);
-                
-                updateProfessionalDashboard();
-                conversationStep = 2;
-            }, 2000);
-        }
-
-        function addBubble(type, htmlContent) {
-            const chatHistory = document.getElementById('chat-history');
-            const bubble = document.createElement('div');
-            bubble.className = `bubble ${type}`;
-            bubble.innerHTML = htmlContent;
-            chatHistory.appendChild(bubble);
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendMessage();
-        }
-
-        // --- NURSELINE LOGICA ---
-        function updateTranscript(text) {
-            const transcriptBox = document.getElementById('nurseline-transcript');
-            transcriptBox.innerHTML += `<br>${text}<br>`;
-            transcriptBox.scrollTop = transcriptBox.scrollHeight;
-        }
-
-        function updateProfessionalDashboard() {
-            // Notificatie voor de nurseline tab
-            document.getElementById('notification-dot').style.display = 'inline';
-            
-            // Update SOAP Assessment & Objectief
-            document.getElementById('wound-badge').classList.remove('hidden');
-            document.getElementById('subjective-update').classList.remove('hidden');
-            document.getElementById('image-assessment').classList.remove('hidden');
-            document.getElementById('assessment-text').innerHTML = "Klinisch stabiel m.b.t. hartfalen. <span style='color:var(--danger); font-weight:bold;'>Acuut risico op wondinfectie heup (erytheem zichtbaar).</span>";
-
-            // Voeg URGENTE taak toe aan bewerkbaar plan
-            const planList = document.getElementById('editable-plan-list');
-            const newPlanItem = document.createElement('li');
-            newPlanItem.className = 'editable-list-item';
-            newPlanItem.style.borderLeftColor = 'var(--danger)';
-            newPlanItem.style.backgroundColor = '#fef2f2';
-            newPlanItem.innerHTML = `
-                <div>
-                    <strong style="color: var(--danger);">[URGENT] Wondzorg & Inspectie</strong><br>
-                    <span style="font-size: 0.85rem;">Acute wondinspectie thuis inplannen o.b.v. foto (verdenking infectie).</span>
-                </div>
-                <button class="delete-btn" onclick="this.parentElement.remove()" title="Verwijder taak">×</button>
-            `;
-            planList.insertBefore(newPlanItem, planList.firstChild);
-
-            // Update Matchingsplatform
-            const matchingList = document.getElementById('matching-list');
-            const newMatch = document.createElement('div');
-            newMatch.className = 'task-item urgent';
-            newMatch.innerHTML = `
-                <div>
-                    <strong>Thuisverpleegkunde (Wondzorg Specialist)</strong><br>
-                    <small>Match gevonden: Fatima. Actie: Acute inspectie vandaag.</small>
-                </div>
-                <button class="action-button" style="background-color: var(--danger); margin-top:0; margin-left: auto;">Plan NU in</button>
-            `;
-            matchingList.insertBefore(newMatch, matchingList.firstChild);
-        }
-
-        // Handmatig een taak toevoegen (Human-in-the-loop)
-        function addManualTask() {
-            const inputField = document.getElementById('manual-task-input');
-            const taskText = inputField.value;
-            if(taskText.trim() === '') return;
-
-            const planList = document.getElementById('editable-plan-list');
-            const newPlanItem = document.createElement('li');
-            newPlanItem.className = 'editable-list-item';
-            newPlanItem.style.borderLeftColor = 'var(--secondary)'; // Groen voor handmatige toevoeging
-            newPlanItem.innerHTML = `
-                <div>
-                    <strong>Handmatige Taak (Nurseline)</strong><br>
-                    <span style="font-size: 0.85rem;">${taskText}</span>
-                </div>
-                <button class="delete-btn" onclick="this.parentElement.remove()" title="Verwijder taak">×</button>
-            `;
-            planList.appendChild(newPlanItem);
-            inputField.value = '';
-        }
-
-        function approvePlan() {
-            alert("✅ Het zorgplan is geaccordeerd door de nurseline! De definitieve versie is nu verstuurd naar de patiënten-app en het matchingsplatform wordt geactiveerd.");
+                const familyBtn = document.querySelectorAll('.nav-btn')[1];
+                switchView('view-family', familyBtn);
+            }, 1500);
         }
     </script>
 </body>
